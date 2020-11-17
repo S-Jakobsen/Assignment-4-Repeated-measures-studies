@@ -1,0 +1,60 @@
+---
+title: "Assignment 4"
+author: "Sivert Jakobsen"
+date: "11 11 2020"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+## Introduksjon 
+I denne oppgaven skal jeg bruke to datasett. Til oppgave 1 bruker jeg ten_vs_thirty.xlsx hvor jeg skal svare på hva som burde være den anbefalte intensiteten for utvikling av styrke. I oppgave 2 skal jeg bruke strengthTest.csv datasettet hvor jeg skal svare på hva som burde være det anbefalte volumet for utvikling av styrke. 
+
+## Del 1 - Anbefalt intensitet for utvikling av styrke
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(readxl)
+library(lme4)
+library(broom)
+library(kableExtra)
+ 
+ten_vs_thirty <- read_excel("./data/ten_vs_thirty.xlsx", na = "NA")
+  
+ten_vs_thirty2 <- ten_vs_thirty %>%  
+  filter(exercise == "legpress") %>% # Velg exercise vi vil se på
+  mutate(timepoint = factor(timepoint, levels = c("pre", "post"))) # fix the order of timepoint factor
+
+lm1 <- lm(load ~ timepoint, data = ten_vs_thirty2)
+
+lmer1 <- lmer(load ~ timepoint * group + (1|subject), data = ten_vs_thirty2)
+
+summary(lm1)
+
+confint(lm1)
+
+tidy(lm1) %>%
+  kbl() %>%
+  kable_classic()
+
+
+summary(lmer1)
+
+confint(lmer1) %>%
+  kbl() %>%
+  kable_classic()
+
+qqnorm(resid(lmer1)); # Plotter data
+qqline(resid(lmer1)) # Legger til linjen
+```
+
+
+
+
+## Del 2 - Anbefalt volum for utvikling av styrke
+
+```{r}
+
+```
+
+
+
