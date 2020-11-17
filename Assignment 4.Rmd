@@ -21,7 +21,9 @@ library(kableExtra)
 ten_vs_thirty <- read_excel("./data/ten_vs_thirty.xlsx", na = "NA")
   
 ten_vs_thirty2 <- ten_vs_thirty %>%  
-  filter(exercise == "legpress") %>% # Velg exercise vi vil se på
+  filter(exercise == "legpress",
+         !is.na(load),
+         timepoint %in% c("pre", "post")) %>% # Velg exercise vi vil se på
   mutate(timepoint = factor(timepoint, levels = c("pre", "post"))) # fix the order of timepoint factor
 
 lm1 <- lm(load ~ timepoint, data = ten_vs_thirty2)
