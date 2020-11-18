@@ -4,12 +4,12 @@ author: "Sivert Jakobsen"
 date: "11 11 2020"
 output: html_document
 editor_options: 
-  chunk_output_type: console
+chunk_output_type: console
 ---
 ## Introduksjon 
 I denne oppgaven skal jeg bruke to datasett. Til oppgave 1 bruker jeg ten_vs_thirty.xlsx hvor jeg skal svare på hva som burde være den anbefalte intensiteten for utvikling av styrke. I oppgave 2 skal jeg bruke strengthTest.csv datasettet hvor jeg skal svare på hva som burde være det anbefalte volumet for utvikling av styrke. 
 
-## Del 1 - Anbefalt intensitet for utvikling av styrke
+## Del 1 - Anbefalt intensitet for utvikling av styrke 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 library(tidyverse)
@@ -26,36 +26,72 @@ ten_vs_thirty2 <- ten_vs_thirty %>%
          timepoint %in% c("pre", "post")) %>% # Velg exercise vi vil se på
   mutate(timepoint = factor(timepoint, levels = c("pre", "post"))) # fix the order of timepoint factor
 
-lm1 <- lm(load ~ timepoint, data = ten_vs_thirty2)
+lm1 <- lm(load ~ timepoint * group, data = ten_vs_thirty2)
 
 lmer1 <- lmer(load ~ timepoint * group + (1|subject), data = ten_vs_thirty2)
 
-summary(lm1)
 
-confint(lm1)
+conf_intervals <- confint(lm1)
 
-tidy(lm1) %>%
-  kbl() %>%
-  kable_classic()
+coefs <- summary(lm1)$coef
+
+coef_summary <- cbind(coefs, data.frame(conf_intervals))
+
+coef_summary %>%
+  kbl(caption = c("Tabell 1"),
+      digits = c(3, 3, 3, 3, 3, 3),
+      col.names = c("Estimate",
+                    "Std.Error",
+                    "T-value",
+                    "P-value",
+                    "2.5 %",
+                    "97.5 %")) %>%
+   kable_material(c("striped", "hover"))
 
 
-summary(lmer1)
-
-confint(lmer1) %>%
-  kbl() %>%
-  kable_classic()
-
-qqnorm(resid(lmer1)); # Plotter data
+# Viser normalfordeling eller ikke
+qqnorm(resid(lmer1)); # Plotter data 
 qqline(resid(lmer1)) # Legger til linjen
 ```
 
 
 
 
-## Del 2 - Anbefalt volum for utvikling av styrke
+## Del 2 - Anbefalt volum for utvikling av styrke 
 
-```{r}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(readr)
 
+strengthtest <- read.csv("./data/strengthTests.csv", na = "NA")
+
+st <- strengthtest %>%
+  filter(exercise == "isok.240") %>%
+  mutate(timepoint = factor(timepoint, levels = c("pre", "session1", "post")))
+
+lm2 <- lm(load ~ timepoint * group, data = st)
+
+lmer2 <- lmer(load ~ timepoint * group + (1|subject), data = st)
+
+conf_intervals2 <- confint(lm2)
+
+coefs2 <- summary(lm2)$coef
+
+coef_summary2 <- cbind(coefs2, data.frame(conf_intervals2))
+
+coef_summary2 %>%
+  kbl(caption = c("Tabell 2"),
+      digits = c(3, 3, 3, 3, 3, 3),
+      col.names = c("Estimate",
+                    "Std.Error",
+                    "T-value",
+                    "P-value",
+                    "2.5 %",
+                    "97.5 %")) %>%
+  kable_classic()
+
+
+qqnorm(resid(lmer2)); # Plotter data
+qqline(resid(lmer2)) # Legger til linjen
 ```
 
 
