@@ -9,29 +9,34 @@ chunk_output_type: console
 ## Introduksjon 
 I denne oppgaven skal jeg bruke to datasett. Til oppgave 1 bruker jeg ten_vs_thirty.xlsx hvor jeg skal svare på hva som burde være den anbefalte intensiteten for utvikling av styrke. I oppgave 2 skal jeg bruke strengthTest.csv datasettet hvor jeg skal svare på hva som burde være det anbefalte volumet for utvikling av styrke. 
 
-## Del 1 - Anbefalt intensitet for utvikling av styrke 
-
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+```{r Packages, echo=FALSE, message=FALSE, warning=FALSE}
+# Innlasting av packages 
 library(tidyverse)
 library(readxl)
 library(lme4)
 library(broom)
 library(kableExtra)
- 
+library(emmeans)
+library(pbkrtest)
+library(readr)
+
+```
+
+
+## Del 1 - Anbefalt intensitet for utvikling av styrke 
+
+```{r Tabell, echo=FALSE, message=FALSE, warning=FALSE}
 ten_vs_thirty <- read_excel("./data/ten_vs_thirty.xlsx", na = "NA")
   
 ten_vs_thirty2 <- ten_vs_thirty %>%  
-  filter(exercise == "legpress",
-         !is.na(load),
+  filter(exercise == "legpress", # Valg av exercise
+         !is.na(load), #Fjer NA
          timepoint %in% c("pre", "post")) %>% # Velg exercise vi vil se på
-  mutate(timepoint = factor(timepoint, levels = c("pre", "post"))) # fix the order of timepoint factor
+  mutate(timepoint = factor(timepoint, levels = c("pre", "post"))) # Fikser rekkefølgen på timepoint 
 
 lm1 <- lm(load ~ timepoint * group, data = ten_vs_thirty2)
 
-lmer1 <- lmer(load ~ timepoint * group + (1|subject), data = ten_vs_thirty2)
-
-
-conf_intervals <- confint(lm1)
+conf_intervals <- confint(lm1) # Lagre konfidensintervallet i en tabell
 
 coefs <- summary(lm1)$coef
 
@@ -46,21 +51,38 @@ coef_summary %>%
                     "P-value",
                     "2.5 %",
                     "97.5 %")) %>%
-   kable_material(c("striped", "hover"))
+   kable_classic()
 
-
-# Viser normalfordeling eller ikke
-qqnorm(resid(lmer1)); # Plotter data 
-qqline(resid(lmer1)) # Legger til linjen
 ```
 
+```{r Diagram, echo=FALSE, message=FALSE, warning=FALSE}
+est <- emmeans(lm1, specs = ~ timepoint|group)
 
+est %>%
+  data.frame() %>%
+  mutate(timepoint = factor(timepoint, levels = c("pre", "post"))) %>%
+
+  ggplot(aes(timepoint, emmean, group = group, color = group) ) + 
+  
+  geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL), 
+                position = position_dodge(width = 0.2), 
+                width = 0.1) +
+  geom_line(position = position_dodge(width = 0.2)) +
+  geom_point(position = position_dodge(width = 0.2)) +
+  theme_minimal()
+
+```
+
+```{r Normalfordeling, echo=FALSE, message=FALSE, warning=FALSE}
+# Viser normalfordeling eller ikke
+qqnorm(resid(lm1)); # Plotter data 
+qqline(resid(lm1)) # Legger til linjen
+```
 
 
 ## Del 2 - Anbefalt volum for utvikling av styrke 
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
-library(readr)
+```{r Tabell 2, echo=FALSE, message=FALSE, warning=FALSE}
 
 strengthtest <- read.csv("./data/strengthTests.csv", na = "NA")
 
@@ -69,8 +91,6 @@ st <- strengthtest %>%
   mutate(timepoint = factor(timepoint, levels = c("pre", "session1", "post")))
 
 lm2 <- lm(load ~ timepoint * group, data = st)
-
-lmer2 <- lmer(load ~ timepoint * group + (1|subject), data = st)
 
 conf_intervals2 <- confint(lm2)
 
@@ -89,10 +109,28 @@ coef_summary2 %>%
                     "97.5 %")) %>%
   kable_classic()
 
-
-qqnorm(resid(lmer2)); # Plotter data
-qqline(resid(lmer2)) # Legger til linjen
 ```
 
+```{r Diagram 2, echo=FALSE, message=FALSE, warning=FALSE}
+st2 <- emmeans(lm2, specs = ~ timepoint|group)
 
+st2 %>%
+  data.frame() %>%
+  mutate(timepoint = factor(timepoint, levels = c("pre", "session1", "post"))) %>%
+
+  ggplot(aes(timepoint, emmean, group = group, color = group) ) + 
+  
+  geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL), 
+                position = position_dodge(width = 0.2), 
+                width = 0.1) +
+  geom_line(position = position_dodge(width = 0.2)) +
+  geom_point(position = position_dodge(width = 0.2)) +
+  theme_minimal()
+```
+
+```{r Normalfordeling 2, echo=FALSE, message=FALSE, warning=FALSE}
+qqnorm(resid(lm2)); # Plotter data
+qqline(resid(lm2)) # Legger til linjen
+
+```
 
