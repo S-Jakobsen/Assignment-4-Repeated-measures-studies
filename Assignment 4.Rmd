@@ -7,7 +7,8 @@ editor_options:
 chunk_output_type: console
 ---
 ## Introduksjon 
-I denne oppgaven skal jeg bruke to datasett. Til oppgave 1 bruker jeg ten_vs_thirty.xlsx hvor jeg skal svare på hva som burde være den anbefalte intensiteten for utvikling av styrke. I oppgave 2 skal jeg bruke strengthTest.csv datasettet hvor jeg skal svare på hva som burde være det anbefalte volumet for utvikling av styrke. 
+I denne oppgaven skal vi lage en statistisk raport ved å bruke to forskjellige datasett. Til del 1 av oppgaven bruker vi ten_vs_thirty.xlsx hvor vi skal svare på hva som burde være den anbefalte intensiteten for utvikling av styrke. 
+I del 2 av oppgaven skal vi bruke strengthTest.csv datasettet hvor vi skal svare på hva som burde være det anbefalte volumet for utvikling av styrke.
 
 ```{r Packages, echo=FALSE, message=FALSE, warning=FALSE}
 # Innlasting av packages 
@@ -25,6 +26,19 @@ library(readr)
 
 ## Del 1 - Anbefalt intensitet for utvikling av styrke 
 
+I denne studien skal vi se nærmere på om 10 eller 30 repetisjoner gir best fremgang for utvikling av styrke.  
+
+De 24 forsøkspersonene har trent og testet en rekke øvelser, men vi har valgt å se nærmere på legpress. Trengingsintensjonen varte i 10 uker med 3 økter i uka. Forsøkspersonene var menn i alderen 20 til 30 som har trent 2-3 ganger i uken det siste året. Gruppene er randomiserte. 
+
+### Bakgrunn
+
+I del 1 har vi en studie som ser på forskjellen på utvikling av styrke ved 10RM og 30RM. Hvis vi ser på tidligere studier Grgic et. al 2018 (som så på styrkeutviklingen og RT "resistance training"), i denne studien foreslås det at mer motstand i RT øker forbedring i styrke sammenlignet med lavmotstand i RT. Ut i fra dette så kan vi lage en hypotese på denne studien: Det er større prosentandel økning i styrke ved å trene med 10RM enn å trene med 30RM. 
+
+### Metode
+
+Frøst valgte vi en variabel, legpress. Deretter sorterte og formarterte vi dataen i en tabell til videre bruk. Videre gjennomførte vi Mixed models for å kunne kjøre en linejær modell (lm funksjonen) og satte den lineære modellen sammen med konfidensintervallet i en tabell. Tilslutt lagde vi et diagram på dette for å illustrere resutatet av studien på en oversiklig måte.   
+
+### Resultat
 ```{r Tabell, echo=FALSE, message=FALSE, warning=FALSE}
 ten_vs_thirty <- read_excel("./data/ten_vs_thirty.xlsx", na = "NA")
   
@@ -55,6 +69,12 @@ coef_summary %>%
 
 ```
 
+<br>
+
+Tabell 1 viser at 30RM gruppen har et utgangspunkt på 7,6kg høyere enn 10RM gruppen ved pre-testen. Etter treningsintensjonen har 10RM gruppen økt med 75,4 kg fra pre-test, mens 30RM har økt med 35 kg. Dette vil si at 10RM gruppen har en økning på 27,5% fra pre- til post-test, kontra 30RM gruppen har en økning på 12,4%. 
+
+<br>
+
 ```{r Diagram, echo=FALSE, message=FALSE, warning=FALSE}
 est <- emmeans(lm1, specs = ~ timepoint|group)
 
@@ -69,26 +89,54 @@ est %>%
                 width = 0.1) +
   geom_line(position = position_dodge(width = 0.2)) +
   geom_point(position = position_dodge(width = 0.2)) +
+  labs(subtitle = "Figur 1") +
   theme_minimal()
 
 ```
 
-```{r Normalfordeling, echo=FALSE, message=FALSE, warning=FALSE}
-# Viser normalfordeling eller ikke
-qqnorm(resid(lm1)); # Plotter data 
-qqline(resid(lm1)) # Legger til linjen
-```
+<br>
 
+Figur 1 viser til en stigning hos begge bruppene fra pre- til post-test. Som nevnt i tabell 1 ser vi en høyere stigning his 10RM gruppen enn hos 30RM gruppen fra pre- til post-test.
+
+### Diskusjon
+
+Resultatene fra testene etter gjennomført treningintensjon viser til større økning i styrke hos 10RM gruppen kontra 30RM gruppen. Dette tilsvarer hypotesen som i hadde før studet ble gjennomført. I studien til Heggelung et. al (2013) og Grgic et. al (2018) så vi noen lignende resultater. I studien til Grgic et. al (2018) kommer de frem til at hyere motstands trening gir bedre styrkeutvikling enn lavere motstandstrening. Dette kan sammenlignes ed flere og færre repetisjoner slik som i studien vår. I studien til Heggelund et. al (2013) blir det foreslått at færre repetisjoner har større effekt på maks styrke enn fellere repetisjoner. Begge disse studiene er med på å styrke reliabiliteten i vår studie. Det som kan svekken denne studien er mer forskning på akkurat dette området. Studien vår er ikke den største og artikkelen som vi sammenligner med har ikke sett nøyaktig på det samme. dette fører til at vi får en del variabler som vi ikke har kontroll på. 
+
+### Konklusjon
+
+Etter gjennoføring av vårt studie ser vi en høyere potensiel øking av styrke for 10RM gruppen kontra 30RM. Forskjellen signifikant mellom gruppene. Dette temaet trenger mer forskning og et større utvalg. Derfor skal vi være forsiktig med å tolke for mye av denne studien. Vi kan si at det er en tendens til større økning av styrke med færre repetisjoner.   
+
+<br>
 
 ## Del 2 - Anbefalt volum for utvikling av styrke 
 
+I denne delen skal vi se nærmere på om 1 eller flere sett gir best forbedring av styrke.
+
+I denne studien ble det gjennomført en trenings intervensjonsstudie med 34 forsøkspersoner i alderen 30-40 år, hvorav 16 var menn og 18 kvinner. Kravet var å ha vært jevnlig aktiv/trent 2-3 ganger i uka det siste året. Intervensjoen besto av 12 uker med treningsopplegg med 2 økter per uke. Det var både kvinner og menn med i studien. 
+Treningsopplegget besto av en rekke øvelser for å øke stryke på underekstrimitetene. 
+
+Det ble gjennomført en pre-, session1 og post-test i øvelsen "isok.60". Dette vil si en isokinetisk test med 60 grader i dreiemoment som går på underekstrimitetene. 
+
+### Bakgrunn
+
+Innenfor dette temaet med antall sett i trening, så er litteraturen godt representert med anbeflinger med flere sett for å utvikle styrke (Stoppani, 2006; Refsnes, 1996). Derfor blir det interresant å som om vårt studie viser til den samme tendensen i favør av å trene flere sett. 
+På bakgrunn av dette er hypotesen vår: Flere sett gir en bedre uvikling av styrke enn færre sett. 
+
+### Metode
+
+Frøst valgte vi en variabel, isok.60. Deretter sorterte og formarterte vi dataen i en tabell til videre bruk. Videre gjennomførte vi Mixed models for å kunne kjøre en linejær modell (lm funksjonen) og satte den lineære modellen sammen med konfidensintervallet i en tabell. Tilslutt lagde vi et diagram på dette for å illustrere resutatet av studien på en oversiklig måte. 
+
+### Resultater
 ```{r Tabell 2, echo=FALSE, message=FALSE, warning=FALSE}
 
 strengthtest <- read.csv("./data/strengthTests.csv", na = "NA")
 
 st <- strengthtest %>%
-  filter(exercise == "isok.240") %>%
-  mutate(timepoint = factor(timepoint, levels = c("pre", "session1", "post")))
+  filter(exercise == "isok.60") %>%
+  mutate(timepoint = factor(timepoint, levels = c("pre", "session1", "post")),
+         time = if_else(timepoint == "post", "post", "pre"),
+         time = factor(time, levels = c("pre", "post")),
+         group = factor(group, levels = c("single", "multiple"))) 
 
 lm2 <- lm(load ~ timepoint * group, data = st)
 
@@ -111,6 +159,14 @@ coef_summary2 %>%
 
 ```
 
+<br>
+
+Tabell 2 viser at snittkraften for gruppen multiple var 7,9 Nm lavere enn gruppe single ved pre-test. Til session1 har muliple gruppen økt med 8,5 Nm mens single har gått ned 8,5 Nm som vil si at gruppene ved session 1 er tilnærmet like.
+Etter trenings intervensjonen har sigle gruppen økt med 7,5 Nm fra pre- til post-test, mens miltiple gruppen har økt 31,6Nm fra pre- til post-test.
+Fra pre- til post-test har muliple gruppen økt antall Nm med 18,1% kontra single gruppen som har økt med 4,1%. 
+
+<br>
+
 ```{r Diagram 2, echo=FALSE, message=FALSE, warning=FALSE}
 st2 <- emmeans(lm2, specs = ~ timepoint|group)
 
@@ -125,12 +181,31 @@ st2 %>%
                 width = 0.1) +
   geom_line(position = position_dodge(width = 0.2)) +
   geom_point(position = position_dodge(width = 0.2)) +
+  labs(subtitle = "Figur 2") +
   theme_minimal()
 ```
 
-```{r Normalfordeling 2, echo=FALSE, message=FALSE, warning=FALSE}
-qqnorm(resid(lm2)); # Plotter data
-qqline(resid(lm2)) # Legger til linjen
+<br>
 
-```
+Figur 2 viser til forandringen fra pre-, session1 til post-testen hos begge gruppene. Som nevnt i tabell 2 ser vi at single begynner litt høyere enn multiple i pre-test før de er tilnærmet likt ved session1. Ved post-test har multiple økt mer enn hva single har gjort. 
 
+### Diskusjon
+
+Resultatene av studien vår viser til en større økning i pronsent for multiple sett gruppen i forhold til single sett gruppen. Dette gjennspeiles godt med tidligere litteratur (Stoppani, 2006; Refsnes, 1996) og indikerer at de anbefalte treningsprogrammene stemmer med virkeligheten. Et større volum på styrke treningen gir og et bedre resultat med med mindre volum (Grgir et. al, 2018). Det kommer ikke frem en signifikent forskjell mellom gruppene, men dette kan blant annet skylles en lite spesifikk test i forhold til treningsopplegget som blir gjennomført. 
+
+### Konklusjon
+
+Det kom ikke frem en signifikant forskjell mellom singel og multiplegruppen, men det er en tendens til en større utvikling hos gruppen med flere sett. Dermed må vi konkludere med at det ikke er noe forskjell etter dette studiet. Men tror at mer og bedre forskning vil gi et annet resultat, tilnærmet lik hypotesen vi hadde. 
+
+## Litteraturliste
+
+Grgic, J., Schoenfeld, B. J., Davies, T. B., Lazinica, B., Krieger, J. W. & Pedisic, Z. (2018). Effect of Resistance Training Frequency on Gains in Muscular Strength: A Systematic Review and Meta-Analysis. *Sports Med* (48)/1207–1220
+doi.org/10.1007/s40279-018-0872-x  
+
+Heggelund, J., Fimland, M. S., Helgerud, J. & Hoff, J. (2013). Maximal strength training improves work economy, rate of force development and maximal strength more than conventional strength training. *Eur J Appl Physiol* (113), 1565–1573
+DOI 10.1007/s00421-013-2586-y
+
+
+Refsnes, P. E. (1996). *Temahefte for forsvaret: Styrketrening - 7A.* Oslo: Fotosats og trykk: Otto Falch Hurtigtrykk AS.
+
+Stoppani, J. (2006). *Encyclopedia of muscle & strenght.* Human kinetics.
